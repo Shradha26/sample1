@@ -25,9 +25,13 @@ class Consumer(AbstractConsumer):
 
         # Check to ignore
         if ACTION_NAME in resource.actions:
-            if (resource.actions[ACTION_NAME][-1].get('status') == Constants.COMPLETED.value) or \
-                    (resource.actions[ACTION_NAME][-1].get('status') == Constants.IN_PROGRESS.value):
-                print('Ignoring Action: A1 for resource_id: ' + resource_id)
+            if resource.actions[ACTION_NAME][-1].get('status') == Constants.COMPLETED.value:
+                print('Ignoring Completed Action: A1 for resource_id: ' + resource_id)
+                producer = Producer()
+                producer.publish(resource_id=resource_id, key=Constants["ACTION_MAP"].value.get(NEXT_ACTION_NAME))
+                return
+            elif resource.actions[ACTION_NAME][-1].get('status') == Constants.IN_PROGRESS.value:
+                print('Ignoring InProgress Action: A1 for resource_id: ' + resource_id)
                 return
 
         # prep the resource

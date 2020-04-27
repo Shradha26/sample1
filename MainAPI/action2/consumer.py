@@ -25,9 +25,13 @@ class Consumer(AbstractConsumer):
 
         # Check to ignore
         if ACTION_NAME in resource.actions:
-            if (resource.actions[ACTION_NAME][-1].get('status') == Constants.COMPLETED.value) or \
-                    (resource.actions[ACTION_NAME][-1].get('status') == Constants.IN_PROGRESS.value):
-                print('Ignoring Action: A2 for resource_id: ' + resource_id)
+            if resource.actions[ACTION_NAME][-1].get('status') == Constants.COMPLETED.value:
+                print('Ignoring Completed Action: A2 for resource_id: ' + resource_id)
+                producer = Producer()
+                producer.publish(msg=resource_id, key=Constants["ACTION_MAP"].value.get(NEXT_ACTION_NAME))
+                return
+            elif resource.actions[ACTION_NAME][-1].get('status') == Constants.IN_PROGRESS.value:
+                print('Ignoring In Progress Action: A2 for resource_id: ' + resource_id)
                 return
 
         # prep the resource
@@ -35,6 +39,8 @@ class Consumer(AbstractConsumer):
         resource.time_start = str(datetime.now())
         if ACTION_NAME not in resource.actions:
             resource.actions[ACTION_NAME] = []
+        else:
+            resource.restart = True
         new_action = Action(status=Constants.IN_PROGRESS.value, time_start=str(datetime.now()), action_name=ACTION_NAME)
         resource.actions[ACTION_NAME].append(new_action)
 
@@ -45,7 +51,7 @@ class Consumer(AbstractConsumer):
         producer = Producer()
         time.sleep(5)
         new_action.time_end = str(datetime.now())
-        if resource_id == '998':
+        if resource_id == '998' and not resource.restart:
             resource.status = Constants.FAILED.value
             resource.time_end = str(datetime.now())
             new_action.status = Constants.FAILED.value

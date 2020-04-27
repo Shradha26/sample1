@@ -11,19 +11,22 @@ from MainAPI.models import Resource, Action
 def main(request):
     resource_id = str(request.GET["id"])
     resource_dao = ResourceDao()
-    resource = resource_dao.read(id)
+    resource = resource_dao.read(resource_id)
     action = None
-    if resource is None:
+    if not resource:
+        #print("No resource object obtained in main; starting at action 1")
         action = "A1"
         resource = Resource(resource_id=resource_id)
         resource_dao.create(resource)
     else:
         for ac in Constants["ACTIONS"].value:
+            print("At action: "+ac)
             actions = resource.actions
-            if ac not in actions or actions.get(ac)[-1].get("status") == Constants.FAILED:
+            print(actions)
+            if ac not in actions or actions.get(ac)[-1].get("status") == Constants.FAILED.value:
                 action = ac
                 break
-            if actions.get(ac)[-1].get("status") == Constants.IN_PROGRESS:
+            if actions.get(ac)[-1].get("status") == Constants.IN_PROGRESS.value:
                 return HttpResponse("Duplicate request; action " + ac + " in progress")
     if action:
         producer = Producer()
