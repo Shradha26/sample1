@@ -1,7 +1,7 @@
 import threading
 from MainAPI.action1.consumer import Consumer
 
-NUM_CONSUMERS = 2
+NUM_CONSUMERS = 3
 QUEUE_ID = 'Action1_Q'
 consumer_threads = []
 for _ in range(NUM_CONSUMERS):

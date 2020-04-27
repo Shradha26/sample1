@@ -15,6 +15,7 @@ class Resource:
         self.time_start = time_start
         self.time_end = time_end
         self.actions = actions
+        self.version = 0
 
 
 class Action:

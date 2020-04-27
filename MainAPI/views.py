@@ -14,15 +14,12 @@ def main(request):
     resource = resource_dao.read(resource_id)
     action = None
     if not resource:
-        #print("No resource object obtained in main; starting at action 1")
         action = "A1"
         resource = Resource(resource_id=resource_id)
         resource_dao.create(resource)
     else:
         for ac in Constants["ACTIONS"].value:
-            print("At action: "+ac)
             actions = resource.actions
-            print(actions)
             if ac not in actions or actions.get(ac)[-1].get("status") == Constants.FAILED.value:
                 action = ac
                 break

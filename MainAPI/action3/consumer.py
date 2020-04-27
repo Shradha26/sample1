@@ -38,7 +38,10 @@ class Consumer(AbstractConsumer):
         resource.actions[ACTION_NAME].append(new_action)
 
         # update
-        resource_dao.update(resource)
+        if not resource_dao.update(resource):
+            print('WARN: Update failed for resource:' + resource_id + ', version:' + str(
+                resource.version) + ' because of stale data')
+            return
 
         # mock call to action1 API
         producer = Producer()
@@ -55,4 +58,7 @@ class Consumer(AbstractConsumer):
             new_action.status = Constants.COMPLETED.value
 
         # mark complete/ failed
-        resource_dao.update(resource)
+        if not resource_dao.update(resource):
+            print('WARN: Update failed for resource:' + resource_id + ', version:' + str(
+                resource.version) + ' because of stale data')
+            return

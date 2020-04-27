@@ -27,36 +27,10 @@ class ResourceDao:
         except Exception as e:
             print('ERROR!!: ' + str(e))
 
-    def create2(self, resource_id):
-        resource_log = self.client["test_db"]["resource_log"]
-        cursor = resource_log.find_one({"resource_id": str(resource_id)})
-        if not cursor:
-            resource_log.insert_one({
-                "resource_id": str(resource_id),
-                "status": None,
-                "time_start": None,
-                "time_end": None
-            })
-            return True, "Created Document"
-        else:
-            return False, "Document exists"
-
     def update(self, resource):
         resource_log = self.client["test_db"]["resource_log"]
-        resource_log.update({'resource_id': resource.resource_id}, resource.to_bson())
-
-    def update2(self, resource_id, task_status=None, task_start_time=None, task_end_time=None, action_name=None,
-                action_object=None):
-        resource_log = self.client["test_db"]["resource_log"]
-        if task_status and (task_start_time or task_end_time):
-            if task_start_time:
-                resource_log.update({"resource_id": str(resource_id)},
-                                    {"$set": {"status": task_status, "time_start": task_start_time}})
-            if task_end_time:
-                resource_log.update({"resource_id": str(resource_id)},
-                                    {"$set": {"status": task_status, "time_start": task_end_time}})
-        if action_name and action_object:
-            cursor = resource_log.find_one({"resource_id": str(resource_id)})
-            action = cursor.get(action_name, [])
-            action.append(action_object)
-            resource_log.update({"resource_id": str(resource_id)}, {"$set": {action_name: action}})
+        query = {'resource_id': resource.resource_id, 'version': int(resource.version)}
+        resource.version += 1
+        update = resource.to_bson()
+        response = resource_log.find_and_modify(query=query, update=update)
+        return response is not None
