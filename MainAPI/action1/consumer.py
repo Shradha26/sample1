@@ -50,7 +50,7 @@ class Consumer(AbstractConsumer):
 
         # mock call to action1 API
         producer = Producer()
-        time.sleep(20)
+        time.sleep(10)
         new_action.time_end = str(datetime.now())
         if resource_id == '999':
             resource.status = Constants.FAILED.value
